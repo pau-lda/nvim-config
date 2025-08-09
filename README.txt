@@ -1,5 +1,5 @@
 My nvim init.lua config. 
-No package manager used, but nvim vanilla one.
+Uses only nvim native plugin manager.
 
 
 -- 0.1
