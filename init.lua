@@ -17,7 +17,7 @@ vim.opt.winborder = "rounded"
 vim.opt.hlsearch = false
 vim.opt.incsearch = true
 vim.opt.updatetime = 50
-vim.opt.colorcolumn = "80"
+vim.opt.colorcolumn = "79"
 vim.opt.undofile = true
 vim.opt.ignorecase = true
 
@@ -44,20 +44,25 @@ vim.pack.add({
     { src = "https://github.com/vague2k/vague.nvim" },
     { src = "https://github.com/stevearc/oil.nvim" },
     { src = "https://github.com/echasnovski/mini.nvim" },
-    -- {src = "https://github.com/neovim/nvim-lspconfig"},		-- use embedded instead
+    { src = "https://github.com/neovim/nvim-lspconfig" },		-- use embedded instead
     { src = "https://github.com/mason-org/mason.nvim" },
     { src = "https://github.com/gelguy/wilder.nvim" },
-    { src = "https://github.com/nvim-treesitter/nvim-treesitter" },
+    { src = "https://github.com/nvim-treesitter/nvim-treesitter", version = "main" },
 })
 require("mason").setup()
 require("mini.pick").setup()
-require("oil").setup()
-require "nvim-treesitter.configs".setup({
-    auto_install = true,
-    highlight = { enable = true }
+require("mini.icons").setup()
+require("oil").setup({
+    view_options = {
+        show_hidden = true,
+        is_always_hidden = function(name,bufnr)
+            return name == ".."
+        end,
+    },
 })
+require "nvim-treesitter.configs".setup({ highlight = { enable = true }, })
 
-vim.lsp.enable({ "lua_ls", "clang", "gopls", "rust_analyzer" })
+vim.lsp.enable({ "lua_ls", "gopls", "rust_analyzer" })
 -- automatically call <ctrl>xo for completion
 vim.api.nvim_create_autocmd('LspAttach', {
     callback = function(ev)
@@ -67,11 +72,26 @@ vim.api.nvim_create_autocmd('LspAttach', {
         if client:supports_method('textDocument/completion') then
             vim.lsp.completion.enable(true, client.id, ev.buf, { autotrigger = true })
         end
+        -- Inline type hints
+        if client:supports_method('textDocument/inlayHint') then
+          vim.lsp.inlay_hint.enable(true, { bufnr = ev.buf })
+        end
+       vim.lsp.handlers["textDocument/semanticTokens/full"] = function(err, result, ctx, config)
+          local locclient = vim.lsp.get_client_by_id(ctx.client_id)
+          if not result or not locclient then return end
+          vim.lsp.semantic_tokens.on_full(err, result, ctx, config)
+        end
         vim.keymap.set('n', '<leader>lf', function() vim.lsp.buf.format() end, opts)
     end,
 })
 -- unselect first suggestion
 vim.cmd("set completeopt+=noselect")
+vim.diagnostic.config({
+    virtual_text = true, -- diagnostics inline
+    signs = true,
+    underline = true,
+    update_in_insert = true,
+})
 
 --- theme
 require("vague").setup({ transparent = true })

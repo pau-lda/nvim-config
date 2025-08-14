@@ -1,5 +1,5 @@
 ---@brief
----
+
 --- https://github.com/rust-lang/rust-analyzer
 ---
 --- rust-analyzer (aka rls 2.0), a language server for Rust
@@ -116,4 +116,18 @@ return {
       reload_workspace(bufnr)
     end, { desc = 'Reload current cargo workspace' })
   end,
+  settings = {
+    ["rust-analyzer"] = {
+      cargo = {
+        allFeatures = true,
+      },
+      procMacro = {
+        enable = true,
+      },
+      inlayHints = {
+        enable = true,
+        locationLinks = false
+      },
+    }
+  },
 }
