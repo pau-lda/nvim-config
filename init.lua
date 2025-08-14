@@ -76,11 +76,6 @@ vim.api.nvim_create_autocmd('LspAttach', {
         if client:supports_method('textDocument/inlayHint') then
           vim.lsp.inlay_hint.enable(true, { bufnr = ev.buf })
         end
-       vim.lsp.handlers["textDocument/semanticTokens/full"] = function(err, result, ctx, config)
-          local locclient = vim.lsp.get_client_by_id(ctx.client_id)
-          if not result or not locclient then return end
-          vim.lsp.semantic_tokens.on_full(err, result, ctx, config)
-        end
         vim.keymap.set('n', '<leader>lf', function() vim.lsp.buf.format() end, opts)
     end,
 })
