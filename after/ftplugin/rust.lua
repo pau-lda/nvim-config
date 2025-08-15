@@ -11,6 +11,10 @@ require "lspconfig".rust_analyzer.setup = {
         enable = true,
         locationLinks = false
       },
+      completion = {
+        postfix = { enable = true },
+        fullFunctionSignatures = { enable = true },
+      }
     },
   },
 }
