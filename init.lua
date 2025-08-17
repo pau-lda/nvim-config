@@ -60,7 +60,7 @@ require("oil").setup({
         end,
     },
 })
-require "nvim-treesitter.config".setup({ highlight = { enable = true }, })
+require "nvim-treesitter".setup()
 
 vim.lsp.enable({ "lua_ls", "gopls", "rust_analyzer" })
 -- automatically call <ctrl>xo for completion
