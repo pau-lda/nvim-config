@@ -60,7 +60,7 @@ require("oil").setup({
         end,
     },
 })
-require "nvim-treesitter.configs".setup({ highlight = { enable = true }, })
+require "nvim-treesitter.config".setup({ highlight = { enable = true }, })
 
 vim.lsp.enable({ "lua_ls", "gopls", "rust_analyzer" })
 -- automatically call <ctrl>xo for completion
@@ -76,7 +76,13 @@ vim.api.nvim_create_autocmd('LspAttach', {
         if client:supports_method('textDocument/inlayHint') then
           vim.lsp.inlay_hint.enable(true, { bufnr = ev.buf })
         end
+        vim.keymap.set('n', 'N', function() vim.lsp.buf.hover() end, opts)
+        vim.keymap.set('n', '<leader>ld', function() vim.diagnostic.open_float() end, opts)
         vim.keymap.set('n', '<leader>lf', function() vim.lsp.buf.format() end, opts)
+        vim.keymap.set('n', '<leader>la', function() vim.lsp.buf.code_action() end, opts)
+        vim.keymap.set('n', '<leader>lr', function() vim.lsp.buf.references() end, opts)
+        vim.keymap.set('n', '<leader>lrr', function() vim.lsp.buf.rename() end, opts)
+        vim.keymap.set('i', '<C-h>', function() vim.lsp.buf.signature_help() end, opts)
     end,
 })
 -- unselect first suggestion
@@ -92,3 +98,5 @@ vim.diagnostic.config({
 require("vague").setup({ transparent = true })
 vim.cmd("colorscheme vague")
 vim.cmd(":hi statusline guibg=NONE")
+-- vim.api.nvim_set_hl(0, "Normal", { bg = "none" })
+-- vim.api.nvim_set_hl(0, "NormalFloat", { bg = "none" })
