@@ -26,6 +26,7 @@ vim.keymap.set('n', '<leader>o', ':update<CR> :source<CR>')
 vim.keymap.set('n', '<leader>w', ':write<CR>')
 vim.keymap.set('n', '<leader>q', ':quit<CR>')
 vim.keymap.set('n', '<leader>f', ':Pick files tool=\'rg\'<CR>') -- depending on tool, requires this command on your system
+vim.keymap.set('n', '<leader>^', ':Pick buffers<CR>')
 vim.keymap.set('n', '<leader>h', ':Pick help<CR>')
 vim.keymap.set('n', '<leader>e', ':Oil<CR>')
 vim.keymap.set('n', '<leader>cd', ':cd %:p:h<CR>')  -- change pwd to dir of open file
@@ -65,17 +66,19 @@ require "nvim-treesitter".setup()
 vim.lsp.enable({ "lua_ls", "gopls", "rust_analyzer" })
 -- automatically call <ctrl>xo for completion
 vim.api.nvim_create_autocmd('LspAttach', {
-    callback = function(ev)
-        print("mapleader: ", vim.inspect(vim.g.mapleader))
-        local client = vim.lsp.get_client_by_id(ev.data.client_id)
-        local opts = { buffer = ev.buf }
+    group = vim.api.nvim_create_augroup('my.lsp', {}),
+    callback = function(args)
+        local client = assert(vim.lsp.get_client_by_id(args.data.client_id))
         if client:supports_method('textDocument/completion') then
-            vim.lsp.completion.enable(true, client.id, ev.buf, { autotrigger = true })
+            local chars = {}; for i = 32, 126 do table.insert(chars, string.char(i)) end
+            client.server_capabilities.completionProvider.triggerCharacters = chars
+            vim.lsp.completion.enable(true, client.id, args.buf, { autotrigger = true })
         end
         -- Inline type hints
         if client:supports_method('textDocument/inlayHint') then
-          vim.lsp.inlay_hint.enable(true, { bufnr = ev.buf })
+           vim.lsp.inlay_hint.enable(true, { bufnr = args.buf })
         end
+        local opts = { buffer = args.buf }
         vim.keymap.set('n', 'N', function() vim.lsp.buf.hover() end, opts)
         vim.keymap.set('n', '<leader>ld', function() vim.diagnostic.open_float() end, opts)
         vim.keymap.set('n', '<leader>lf', function() vim.lsp.buf.format() end, opts)
@@ -86,7 +89,7 @@ vim.api.nvim_create_autocmd('LspAttach', {
     end,
 })
 -- unselect first suggestion
-vim.cmd("set completeopt+=noselect")
+vim.cmd [[ set completeopt+=menuone,noselect,popup ]]
 vim.diagnostic.config({
     virtual_text = true, -- diagnostics inline
     signs = true,
